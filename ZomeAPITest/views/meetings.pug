@@ -1,0 +1,19 @@
+﻿doctype html
+html
+head
+body
+table(border='1')
+    tr
+        th uuid
+        th id
+        th host_id
+        th topic
+        th start_time
+        tbody
+        each meeting in meetings
+          tr
+            td #{meeting.uuid}
+            td #{meeting.id}
+            td #{meeting.host_id}
+            td #{meeting.topic}
+            td #{meeting.start_time}
