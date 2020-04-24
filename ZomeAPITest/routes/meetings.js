@@ -3,14 +3,32 @@ var express = require('express');
 var router = express.Router();
 var request = require('request'); //HTTPリクエストモジュール
 const cm = require("../common/connection_manager.js");
+var { Client } = require('pg'); // DBクライアント
 
 /* GET meetings/list page. */
 router.get('/list', function (req, res) {
     // 同期処理
     (async function () {
 
+        var client = new Client({
+            user: 'postgres',
+            host: '35.194.119.86',
+            database: 'postgres',
+            password: 'root',
+            port: 5432
+        });
+        client.connect();
+
+        // スキーマセット
+        await setSchema(client);
+
+        // 認証情報取得
+        const selectRes = await selectAuth(client);
+
         // トークンリフレッシュ;
-        const refreshJson = await cm.tokenRefresh();
+        const refreshJson = await cm.tokenRefresh(selectRes.rows[0].refresh_token);
+        //const refreshJson = await cm.tokenRefresh('aaaaaa');
+
         if (!refreshJson) {
             var err = new Error('トークンリフレッシュ失敗');
             err.status = 400;
@@ -21,6 +39,9 @@ router.get('/list', function (req, res) {
         }
         cm.setAccessToken(refreshJson.access_token);
         cm.setRefreshToken(refreshJson.refresh_token);
+
+        // 認証情報更新
+        await updateAuth(client, refreshJson.access_token, refreshJson.refresh_token);
 
         // ユーザーID取得
         const userId = await getUserId();
@@ -54,6 +75,52 @@ router.get('/list', function (req, res) {
         res.render('meetings', { meetings: meetings });
     })();
 });
+
+/* スキーマセット */
+function setSchema(client) {
+    return new Promise(function (resolve, reject) {
+        client.query('SET search_path = zoomapi_test', (err, result) => {
+            if (err) {
+                logger.debug(err.stack);
+            }
+            resolve(null);
+        });
+    });
+}
+
+/* 認証情報取得 */
+function selectAuth(client) {
+    return new Promise(function (resolve, reject) {
+        client.query('SELECT * FROM authentication WHERE auth_id = 1', (err, result) => {
+            if (err) {
+                logger.debug(err.stack);
+                resolve(null);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+/* 認証情報更新 */
+function updateAuth(client, access, refresh) {
+    return new Promise(function (resolve, reject) {
+        // 認証情報更新
+        const update = {
+            text: 'UPDATE authentication SET access_token = $1, refresh_token = $2 WHERE auth_id = 1;',
+            values: [access, refresh]
+        };
+
+        client.query(update, (updateErr, updateResult) => {
+            if (updateErr) {
+                logger.debug(updateErr.stack);
+            }
+            resolve(null);
+        });
+    });
+}
+
+
 
 /* Get a User API実行 */
 function getUserId() {

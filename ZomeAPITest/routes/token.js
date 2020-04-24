@@ -18,12 +18,12 @@ router.get('/', function (req, res) {
         qs: {
             grant_type: 'authorization_code',
             code: authCode,
-            redirect_uri: 'http://localhost:1337/token'
-            //redirect_uri: 'https://tmori-eval-test.apigee.net/zoomapi/token'
+            //redirect_uri: 'http://localhost:1337/token'
+            redirect_uri: 'https://tmori-eval-test.apigee.net/zoomapi/token'
         },
         headers: {
-            'Authorization': 'Basic OHpjaVh3TElTV2RYWUR2VEx3WDZ3OnNCeWJkSDMyRlhCdVJQMk9UOTRhYzdpREtCWUlaMUU4'
-            //'Authorization': 'Basic dk94ZHM3NnlSRkc3cGVKdDNyeGZ3Zzo5WktzU1o4MjA3TVFldVdmbFNBNmowd3VaYnVCd08wUw=='
+            //'Authorization': 'Basic OHpjaVh3TElTV2RYWUR2VEx3WDZ3OnNCeWJkSDMyRlhCdVJQMk9UOTRhYzdpREtCWUlaMUU4'
+            'Authorization': 'Basic dk94ZHM3NnlSRkc3cGVKdDNyeGZ3Zzo5WktzU1o4MjA3TVFldVdmbFNBNmowd3VaYnVCd08wUw=='
         }
     }
     // HTTPリクエスト実行
@@ -42,7 +42,8 @@ router.get('/', function (req, res) {
         // 画面表示
         res.render('token', {
             access_token: json.access_token,
-            refresh_token: json.refresh_token
+            refresh_token: json.refresh_token,
+            res_body: body
         });
 
     })

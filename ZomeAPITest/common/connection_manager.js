@@ -20,9 +20,9 @@ class connection_manager {
         this.refreshToken = refreshToken;
     }
 
-    tokenRefresh() {
-        const token = this.refreshToken;
+    tokenRefresh(token) {
         return new Promise(function (resolve, reject) {
+
             // HTTPリクエストオプション設定
             const options = {
                 url: 'https://api.zoom.us/oauth/token',
@@ -32,8 +32,8 @@ class connection_manager {
                     refresh_token: token
                 },
                 headers: {
-                    'Authorization': 'Basic OHpjaVh3TElTV2RYWUR2VEx3WDZ3OnNCeWJkSDMyRlhCdVJQMk9UOTRhYzdpREtCWUlaMUU4'
-                    //'Authorization': 'Basic dk94ZHM3NnlSRkc3cGVKdDNyeGZ3Zzo5WktzU1o4MjA3TVFldVdmbFNBNmowd3VaYnVCd08wUw=='
+                    //'Authorization': 'Basic OHpjaVh3TElTV2RYWUR2VEx3WDZ3OnNCeWJkSDMyRlhCdVJQMk9UOTRhYzdpREtCWUlaMUU4'
+                    'Authorization': 'Basic dk94ZHM3NnlSRkc3cGVKdDNyeGZ3Zzo5WktzU1o4MjA3TVFldVdmbFNBNmowd3VaYnVCd08wUw=='
                 }
             };
             // HTTPリクエスト実行
@@ -51,6 +51,7 @@ class connection_manager {
                     resolve(null);
                 }
             });
+
         });
     }
 }
